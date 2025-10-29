@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Gasoek+One&family=Zalando+Sans:wght@400;700&display=swap');
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-text font-sans antialiased;
+  }
+}
+
+/* Cursor Glow Personalizado */
+body {
+  cursor: none; /* Ocultar cursor por defecto en desktop */
+}
+#custom-cursor-glow {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%);
+  box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.05);
+  transition: top 0.1s ease-out, left 0.1s ease-out;
+  transform: translate(-50%, -50%);
+}
+@media (max-width: 768px) {
+  body { cursor: auto; } /* Restaurar cursor en móvil */
+  #custom-cursor-glow { display: none; } /* Ocultar glow en móvil */
+}

@@ -1,0 +1,86 @@
+/* Estilos para la página de portafolio */
+
+/* Botones de filtro */
+.filter-button {
+  @apply px-4 py-2 rounded-full text-sm font-sans transition duration-300;
+  @apply bg-transparent border border-gray-600 text-brand-text;
+  @apply hover:bg-brand-cyan hover:text-brand-bg hover:border-brand-cyan;
+}
+
+.filter-button.active {
+  @apply bg-brand-cyan text-brand-bg border-brand-cyan;
+}
+
+/* Botones del modal */
+.filter-modal-button {
+  @apply px-4 py-2 rounded text-sm font-sans transition duration-300;
+  @apply bg-transparent border border-gray-600 text-brand-text;
+  @apply hover:bg-gray-800 hover:text-white;
+}
+
+.filter-modal-button.active {
+  @apply bg-brand-cyan text-brand-bg border-brand-cyan;
+}
+
+/* Wrapper de botón con subfiltros */
+.filter-button-wrapper {
+  @apply relative;
+}
+
+/* Menú de subfiltros */
+.sub-filter-menu {
+  @apply absolute top-full left-0 mt-1 bg-brand-bg border border-gray-700 rounded-lg shadow-lg p-2 z-10;
+  @apply opacity-0 pointer-events-none transform -translate-y-2;
+  @apply transition-all duration-300;
+  /* Área de transición invisible para evitar que desaparezca */
+  padding-top: 8px;
+  margin-top: -8px;
+}
+
+/* Pseudo-elemento invisible para conectar el botón con el menú */
+.sub-filter-menu::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: transparent;
+}
+
+.filter-button-wrapper:hover .sub-filter-menu,
+.sub-menu-open {
+  @apply opacity-100 pointer-events-auto transform translate-y-0;
+}
+
+/* Botones de subfiltro */
+.sub-filter-button {
+  @apply block w-full text-left px-3 py-2 rounded transition;
+  @apply text-brand-text hover:bg-gray-800;
+}
+
+.sub-filter-button.active {
+  @apply bg-brand-cyan text-brand-bg;
+}
+
+/* Efecto de glow para hover */
+.hover\:shadow-glow-cyan:hover {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+/* Animaciones de entrada */
+.animate-on-scroll {
+  @apply opacity-0 transform translate-y-4;
+  @apply transition-all duration-700 ease-out;
+}
+
+.animate-on-scroll.visible {
+  @apply opacity-100 transform translate-y-0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sub-filter-menu {
+    @apply left-auto right-0;
+  }
+}
