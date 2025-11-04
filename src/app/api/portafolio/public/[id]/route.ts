@@ -6,10 +6,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
 
     // Buscar el proyecto, pero solo si está publicado
     const item = await prisma.portfolioItem.findFirst({
@@ -44,7 +44,7 @@ export async function GET(
   } catch (error: any) {
     let id = 'unknown';
     try {
-      const resolvedParams = await params;
+      const resolvedParams = await context.params;
       id = resolvedParams.id;
     } catch {
       // Si falla obtener params, usar 'unknown'

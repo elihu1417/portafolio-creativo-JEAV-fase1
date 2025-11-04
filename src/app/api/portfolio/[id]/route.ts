@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; // Importamos al Chef
 
 // Trabajo 0: Cuando el Admin quiere VER un trabajo específico (GET)
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params; // El mesero toma el ID del trabajo a buscar
+    const { id } = await context.params; // El mesero toma el ID del trabajo a buscar
 
     // El mesero le dice al Chef: "Dame el 'PortfolioItem' con este ID"
     const item = await prisma.portfolioItem.findUnique({
@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   } catch (error: any) {
     let id = 'unknown';
     try {
-      const resolvedParams = await params;
+      const resolvedParams = await context.params;
       id = resolvedParams.id;
     } catch {
       // Si falla obtener params, usar 'unknown'
@@ -33,9 +33,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 // Trabajo 1: Cuando el Admin quiere EDITAR un trabajo específico (PUT)
 // (Esta función está ACTUALIZADA para el nuevo schema)
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params; // El mesero toma el ID del trabajo a editar
+    const { id } = await context.params; // El mesero toma el ID del trabajo a editar
     
     // El mesero toma los datos del formulario
     const body = await request.json();
@@ -75,7 +75,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   } catch (error: any) {
     let id = 'unknown';
     try {
-      const resolvedParams = await params;
+      const resolvedParams = await context.params;
       id = resolvedParams.id;
     } catch {
       // Si falla obtener params, usar 'unknown'
@@ -87,9 +87,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 // Trabajo 2: Cuando el Admin quiere BORRAR un trabajo específico (DELETE)
 // (Esta función no cambia)
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params; // El mesero toma el ID del trabajo a borrar
+    const { id } = await context.params; // El mesero toma el ID del trabajo a borrar
 
     await prisma.portfolioItem.delete({
       where: { id: id },
@@ -99,7 +99,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   } catch (error: any) {
     let id = 'unknown';
     try {
-      const resolvedParams = await params;
+      const resolvedParams = await context.params;
       id = resolvedParams.id;
     } catch {
       // Si falla obtener params, usar 'unknown'
