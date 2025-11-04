@@ -4,25 +4,55 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; // Importamos al Chef
 
 // Trabajo 1: Cuando el Admin quiere EDITAR un trabajo específico (PUT)
+// (Esta función está ACTUALIZADA para el nuevo schema)
 export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params; // El mesero toma el ID del trabajo a editar
-    const body = await request.json(); // Y toma los nuevos datos
-    const { title, description, imageUrl, videoUrl, info } = body;
+    
+    // El mesero toma los datos del formulario
+    const body = await request.json();
+    const {
+      title,
+      isPublished,
+      category,
+      tags,
+      resumeCorto,
+      resumeLargo,
+      imagenPortadaUrl,
+      imagenPrincipalUrl,
+      contentBlocks, // JSON
+      colaboradores, // JSON
+      videoUrl
+    } = body;
 
     // El mesero le dice al Chef: "Actualiza el 'PortfolioItem' con este ID"
     const updatedItem = await prisma.portfolioItem.update({
       where: { id: id }, // Busca por el ID
-      data: { // Y actualiza con estos datos
+      data: { // Y actualiza con todos estos datos
         title,
-        description,
-        imageUrl,
-        videoUrl,
-        info,
+        isPublished,
+        category,
+        tags,
+        resumeCorto,
+        resumeLargo,
+        imagenPortadaUrl,
+        imagenPrincipalUrl,
+        contentBlocks,
+        colaboradores,
+        videoUrl: videoUrl || null,
       },
     });
+    
     return NextResponse.json(updatedItem);
-  } catch (error) {
+  } catch (error: any) {
+    let id = 'unknown';
+    try {
+      const resolvedParams = await context.params;
+      id = resolvedParams.id;
+    } catch {
+      // Si falla obtener params, usar 'unknown'
+    }
+    console.error(`Error en PUT /api/portafolio/${id}:`, error);
     return NextResponse.json({ error: 'Error al actualizar el item' }, { status: 500 });
   }
 }
