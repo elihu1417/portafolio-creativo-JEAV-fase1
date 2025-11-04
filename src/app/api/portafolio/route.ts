@@ -18,25 +18,54 @@ export async function GET() {
 }
 
 // Trabajo 2: Cuando el Admin quiere CREAR un nuevo trabajo (POST)
+// (Esta función está ACTUALIZADA para el nuevo schema)
 export async function POST(request: Request) {
   try {
-    // El mesero toma los datos del nuevo trabajo
+    // El mesero toma los datos del nuevo formulario
     const body = await request.json();
-    const { title, description, imageUrl, videoUrl, info } = body;
+    
+    // Desestructuramos TODOS los campos nuevos
+    const {
+      title,
+      isPublished,
+      category,
+      tags,
+      resumeCorto,
+      resumeLargo,
+      imagenPortadaUrl,
+      imagenPrincipalUrl,
+      contentBlocks, // JSON
+      colaboradores, // JSON
+      videoUrl
+    } = body;
 
-    // El mesero le da la orden al Chef: "Crea un 'PortfolioItem'"
+    // Validación simple
+    if (!title || !category || !resumeCorto || !resumeLargo || !imagenPortadaUrl || !imagenPrincipalUrl) {
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
+    }
+
+    // El mesero le da la orden al Chef: "Crea un 'PortfolioItem' con todo esto"
     const newItem = await prisma.portfolioItem.create({
       data: {
         title,
-        description,
-        imageUrl,
-        videoUrl, // Opcional
-        info,     // Opcional
+        isPublished,
+        category,
+        tags, // Array de strings
+        resumeCorto,
+        resumeLargo,
+        imagenPortadaUrl,
+        imagenPrincipalUrl,
+        contentBlocks, // Objeto JSON
+        colaboradores, // Objeto JSON
+        videoUrl: videoUrl || null, // Opcional
       },
     });
+    
     // El mesero regresa con el nuevo item creado
     return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
+    // Captura de error más detallada
+    console.error("Error en POST /api/portafolio:", error);
     return NextResponse.json({ error: 'Error al crear el item' }, { status: 500 });
   }
 }
