@@ -88,9 +88,13 @@ function EditorProyecto({ projectId }: { projectId: string }) {
 
   // Función para actualizar un bloque
   const updateBlock = (blockId: string, updates: Partial<ContentBlock>) => {
-    setContentBlocks(contentBlocks.map(block => 
-      block.id === blockId ? { ...block, ...updates } : block
-    ))
+    setContentBlocks(contentBlocks.map(block => {
+      if (block.id !== blockId) return block
+      
+      // Preservar el tipo del bloque y solo actualizar campos permitidos
+      const updated = { ...block, ...updates } as ContentBlock
+      return updated
+    }))
   }
 
   // Función para mover un bloque (arriba/abajo)
