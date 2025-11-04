@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; // Importamos al Chef
 
 // Trabajo 1: Cuando el Admin quiere EDITAR un trabajo específico (PUT)
-export async function PUT(request: Request, context: { params: { id: string } }) {
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = context.params; // El mesero toma el ID del trabajo a editar
+    const { id } = await context.params; // El mesero toma el ID del trabajo a editar
     const body = await request.json(); // Y toma los nuevos datos
     const { title, description, imageUrl, videoUrl, info } = body;
 
@@ -28,9 +28,9 @@ export async function PUT(request: Request, context: { params: { id: string } })
 }
 
 // Trabajo 2: Cuando el Admin quiere BORRAR un trabajo específico (DELETE)
-export async function DELETE(request: Request, context: { params: { id: string } }) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = context.params; // El mesero toma el ID del trabajo a borrar
+    const { id } = await context.params; // El mesero toma el ID del trabajo a borrar
 
     // El mesero le dice al Chef: "Borra el 'PortfolioItem' con este ID"
     await prisma.portfolioItem.delete({
