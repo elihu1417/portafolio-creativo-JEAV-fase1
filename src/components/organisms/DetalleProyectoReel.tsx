@@ -5,104 +5,161 @@ import InformacionProyecto from '../molecules/InformacionProyecto'
 import ReelPrincipal from '../molecules/ReelPrincipal'
 import CarruselReels from './CarruselReels'
 import BloqueTextoAnimado from '../molecules/BloqueTextoAnimado'
+import BloqueImagenEstandar from '../molecules/BloqueImagenEstandar'
+import BloqueVideoEmbebido from '../molecules/BloqueVideoEmbebido'
 import CTA_Proyecto from '../molecules/CTA_Proyecto'
 import NavegacionProyecto from '../molecules/NavegacionProyecto'
+import { getYouTubeThumbnail, getYouTubeEmbedUrl, isYouTubeUrl } from '@/lib/youtube'
 
-interface ReelData {
+interface ContentBlock {
+  type: 'image' | 'text' | 'video' | 'reel-carousel'
   id: string
-  thumbnailSrc: string
-  thumbnailAlt: string
-  videoSrc?: string
+  url?: string
+  content?: string
+  caption?: string
+  reels?: Array<{ url: string; title?: string }>
 }
 
-interface ProyectoReelData {
+interface ProjectData {
   id: string
   title: string
   category: string
-  subcategory?: string
-  shortDescription: string
-  longDescription: string
-  role?: string
-  mainReel: ReelData
-  otherReels: ReelData[]
-  strategyText?: string
+  resumeCorto: string
+  resumeLargo: string
+  imagenPrincipalUrl: string
+  imagenPortadaUrl: string
+  videoUrl?: string | null
+  contentBlocks?: any
+  colaboradores?: any
+  tags?: string[]
   nextProject?: {
     title: string
     href: string
-  }
+  } | null
 }
 
 interface DetalleProyectoReelProps {
-  projectId: string
+  projectData: ProjectData
 }
 
-// Datos de ejemplo - esto se conectará con una base de datos
-const reelProjectsData: Record<string, ProyectoReelData> = {
-  '5': {
-    id: '5',
-    title: 'Proyecto Campaña Reels',
-    category: 'Audiovisual',
-    subcategory: 'Reels',
-    shortDescription: 'Creamos una serie de videos cortos y dinámicos para Instagram.',
-    longDescription: 'El objetivo era capturar la atención rápidamente en el feed de Instagram. Se produjeron 5 variantes diferentes, cada una adaptada a un mensaje específico de la campaña, optimizadas para la reproducción automática y el engagement.',
-    role: 'Edición y Postproducción',
-    mainReel: {
-      id: 'main-reel',
-      thumbnailSrc: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=360&h=640&fit=crop&crop=center',
-      thumbnailAlt: 'Reel Principal Thumbnail'
-    },
-    otherReels: [
-      {
-        id: 'reel-2',
-        thumbnailSrc: 'https://images.unsplash.com/photo-1611162617474-5b5e474737cb?w=180&h=320&fit=crop&crop=center',
-        thumbnailAlt: 'Reel 2 Thumbnail'
-      },
-      {
-        id: 'reel-3',
-        thumbnailSrc: 'https://images.unsplash.com/photo-1611162617303-8ec5aaa42d98?w=180&h=320&fit=crop&crop=center',
-        thumbnailAlt: 'Reel 3 Thumbnail'
-      },
-      {
-        id: 'reel-4',
-        thumbnailSrc: 'https://images.unsplash.com/photo-1611162617195-51b753d8837e?w=180&h=320&fit=crop&crop=center',
-        thumbnailAlt: 'Reel 4 Thumbnail'
-      },
-      {
-        id: 'reel-5',
-        thumbnailSrc: 'https://images.unsplash.com/photo-1611162617082-f233e8221f41?w=180&h=320&fit=crop&crop=center',
-        thumbnailAlt: 'Reel 5 Thumbnail'
+export default function DetalleProyectoReel({ projectData }: DetalleProyectoReelProps) {
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false)
+
+  // Parsear contentBlocks si es necesario
+  let contentBlocks: ContentBlock[] = []
+  if (projectData.contentBlocks) {
+    if (Array.isArray(projectData.contentBlocks)) {
+      contentBlocks = projectData.contentBlocks
+    } else if (typeof projectData.contentBlocks === 'string') {
+      try {
+        contentBlocks = JSON.parse(projectData.contentBlocks)
+      } catch {
+        contentBlocks = []
       }
-    ],
-    strategyText: 'Párrafo explicando la estrategia o el impacto de esta campaña de Reels.',
-    nextProject: {
-      title: 'Siguiente Proyecto en Reels',
-      href: '#'
+    } else {
+      contentBlocks = [projectData.contentBlocks]
     }
   }
-}
 
-export default function DetalleProyectoReel({ projectId }: DetalleProyectoReelProps) {
-  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false)
+  // Encontrar el bloque de reel-carousel principal (el primero)
+  const mainReelBlock = contentBlocks.find(block => block.type === 'reel-carousel')
+  const mainReel = mainReelBlock?.reels?.[0] || null
   
-  const project = reelProjectsData[projectId]
-  
-  if (!project) {
-    return (
-      <div className="container mx-auto px-6 py-24 text-center">
-        <h1 className="text-4xl font-titulo mb-4">Proyecto Reels no encontrado</h1>
-        <p className="text-lg font-sans opacity-70">El proyecto que buscas no existe.</p>
-      </div>
-    )
+  // Obtener los otros reels (excluyendo el principal)
+  const otherReels = mainReelBlock?.reels?.slice(1) || []
+
+  // Formatear colaboradores
+  let colaboradoresText: string | undefined = undefined
+  if (projectData.colaboradores) {
+    let colaboradoresArray: Array<{ nombre?: string; rol?: string }> = []
+    if (Array.isArray(projectData.colaboradores)) {
+      colaboradoresArray = projectData.colaboradores
+    } else if (typeof projectData.colaboradores === 'string') {
+      try {
+        colaboradoresArray = JSON.parse(projectData.colaboradores)
+      } catch {
+        colaboradoresArray = []
+      }
+    } else {
+      colaboradoresArray = [projectData.colaboradores]
+    }
+    
+    colaboradoresText = colaboradoresArray
+      .map((colab) => {
+        if (colab.nombre && colab.rol) {
+          return `${colab.nombre} (${colab.rol})`
+        } else if (colab.nombre) {
+          return colab.nombre
+        }
+        return ''
+      })
+      .filter(Boolean)
+      .join(', ')
   }
 
   const handleToggleDetails = () => {
     setIsDetailsExpanded(!isDetailsExpanded)
   }
 
-  const handleReelClick = (reelId: string) => {
-    console.log('Reproducir reel:', reelId)
+  const handleReelClick = (reelUrl: string) => {
+    console.log('Reproducir reel:', reelUrl)
     // Aquí se implementaría la lógica para reproducir el reel
   }
+
+  // Renderizar bloques de contenido adicionales (texto, imagen, video)
+  const renderContentBlock = (block: ContentBlock, index: number) => {
+    switch (block.type) {
+      case 'text':
+        return (
+          <BloqueTextoAnimado 
+            key={block.id || index}
+            content={block.content || ''}
+          />
+        )
+      case 'image':
+        return (
+          <BloqueImagenEstandar 
+            key={block.id || index}
+            src={block.url || ''}
+            alt={block.caption || projectData.title}
+            aspectRatio="3:2"
+          />
+        )
+      case 'video':
+        const videoUrl = block.url || ''
+        // Si es una URL de YouTube, generar el thumbnail y convertir a embed
+        const thumbnailSrc = isYouTubeUrl(videoUrl) 
+          ? (getYouTubeThumbnail(videoUrl) || videoUrl)
+          : videoUrl
+        const embedUrl = isYouTubeUrl(videoUrl)
+          ? (getYouTubeEmbedUrl(videoUrl) || videoUrl)
+          : videoUrl
+        
+        return (
+          <BloqueVideoEmbebido 
+            key={block.id || index}
+            thumbnailSrc={thumbnailSrc}
+            thumbnailAlt={block.caption || projectData.title}
+            videoSrc={embedUrl}
+            aspectRatio="16:9"
+          />
+        )
+      case 'reel-carousel':
+        // Ya se renderiza en la sección de reels
+        return null
+      default:
+        return null
+    }
+  }
+
+  // Obtener otros bloques de contenido (excluyendo el primer reel-carousel)
+  const otherContentBlocks = contentBlocks.filter((block, index) => {
+    if (block.type === 'reel-carousel') {
+      // Solo excluir el primer bloque de reel-carousel
+      return index !== contentBlocks.findIndex(b => b.type === 'reel-carousel')
+    }
+    return true
+  })
 
   return (
     <article className="project-reel">
@@ -110,22 +167,30 @@ export default function DetalleProyectoReel({ projectId }: DetalleProyectoReelPr
       <section className="container mx-auto px-6 mt-12 mb-16 md:mb-24 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
         {/* Columna Izquierda: Reel Principal */}
         <div className="md:col-span-1 flex justify-center md:justify-end">
-          <ReelPrincipal
-            thumbnailSrc={project.mainReel.thumbnailSrc}
-            thumbnailAlt={project.mainReel.thumbnailAlt}
-            onClick={() => handleReelClick(project.mainReel.id)}
-          />
+          {mainReel ? (
+            <ReelPrincipal
+              thumbnailSrc={mainReel.url || projectData.imagenPortadaUrl}
+              thumbnailAlt={mainReel.title || projectData.title}
+              onClick={() => handleReelClick(mainReel.url || '')}
+            />
+          ) : (
+            <ReelPrincipal
+              thumbnailSrc={projectData.imagenPortadaUrl || projectData.imagenPrincipalUrl}
+              thumbnailAlt={projectData.title}
+              onClick={() => {}}
+            />
+          )}
         </div>
 
         {/* Columna Derecha: Detalles del Proyecto */}
         <div className="md:col-span-2">
           <InformacionProyecto
-            title={project.title}
-            category={project.category}
-            subcategory={project.subcategory}
-            shortDescription={project.shortDescription}
-            longDescription={project.longDescription}
-            collaborators={project.role ? `Rol: ${project.role}` : undefined}
+            title={projectData.title}
+            category={projectData.category}
+            subcategory={projectData.tags?.join(', ') || undefined}
+            shortDescription={projectData.resumeCorto}
+            longDescription={projectData.resumeLargo}
+            collaborators={colaboradoresText}
             isExpanded={isDetailsExpanded}
             onToggleDetails={handleToggleDetails}
           />
@@ -133,18 +198,18 @@ export default function DetalleProyectoReel({ projectId }: DetalleProyectoReelPr
       </section>
 
       {/* Sección: Otros Reels del Proyecto */}
-      {project.otherReels && project.otherReels.length > 0 && (
+      {otherReels.length > 0 && (
         <section className="py-16 bg-gray-900">
           <div className="container mx-auto px-6">
-            <h2 className="text-3xl font-titulo mb-8 text-center md:text-left">
+            <h2 className="text-3xl font-titulo mb-8 text-center md:text-left text-brand-text">
               Otros Reels del Proyecto
             </h2>
             <CarruselReels 
-              reels={project.otherReels.map(reel => ({
-                id: reel.id,
-                thumbnailSrc: reel.thumbnailSrc,
-                thumbnailAlt: reel.thumbnailAlt,
-                onClick: () => handleReelClick(reel.id)
+              reels={otherReels.map((reel, index) => ({
+                id: reel.url || `reel-${index}`,
+                thumbnailSrc: reel.url || projectData.imagenPortadaUrl,
+                thumbnailAlt: reel.title || `${projectData.title} - Reel ${index + 2}`,
+                onClick: () => handleReelClick(reel.url || '')
               }))}
             />
           </div>
@@ -152,14 +217,9 @@ export default function DetalleProyectoReel({ projectId }: DetalleProyectoReelPr
       )}
 
       {/* Bloques de Contenido Adicional */}
-      {project.strategyText && (
+      {otherContentBlocks.length > 0 && (
         <section className="container mx-auto px-6 space-y-16 md:space-y-24 max-w-4xl mt-16 md:mt-24">
-          <BloqueTextoAnimado
-            content="Estrategia detrás de los Reels"
-            isHeading={true}
-            headingLevel="h2"
-          />
-          <BloqueTextoAnimado content={project.strategyText} />
+          {otherContentBlocks.map((block, index) => renderContentBlock(block, index))}
         </section>
       )}
 
@@ -167,10 +227,10 @@ export default function DetalleProyectoReel({ projectId }: DetalleProyectoReelPr
       <section className="container mx-auto px-6 mt-24 mb-24 max-w-4xl space-y-16">
         <CTA_Proyecto />
         
-        {project.nextProject && (
+        {projectData.nextProject && (
           <NavegacionProyecto
-            nextProjectTitle={project.nextProject.title}
-            nextProjectHref={project.nextProject.href}
+            nextProjectTitle={projectData.nextProject.title}
+            nextProjectHref={projectData.nextProject.href}
           />
         )}
       </section>

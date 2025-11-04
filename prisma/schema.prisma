@@ -1,0 +1,57 @@
+// 1. Configuración del Cliente de Prisma
+// Le dice a Prisma cómo generar el cliente que usaremos en nuestro código
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. Configuración de la Fuente de Datos
+// Le dice a Prisma qué base de datos estamos usando y dónde está
+datasource db {
+  provider     = "postgresql" // Usamos Postgres
+  url          = env("DATABASE_URL") // Lee la URL principal de .env.local
+  directUrl    = env("DATABASE_URL_UNPOOLED") // Lee la URL para migraciones de .env.local
+}
+
+// --- 3. MODELOS DE DATOS ---
+
+// Modelo para el Portafolio
+model PortfolioItem {
+  id          String   @id @default(uuid())
+  title       String   // "Título del Proyecto"
+  isPublished Boolean  @default(false) // "Estado: Borrador/Publicado"
+
+  // --- Información Principal ---
+  category    String   // "Categoría Principal"
+  tags        String[] // "Subcategorías / Tags"
+  resumeCorto String   // "Resumen Corto"
+  resumeLargo String   // "Resumen Largo (Detalles)"
+
+  // --- Media Principal ---
+  imagenPortadaUrl String   // "Imagen Portada (Grid 4:3)"
+  imagenPrincipalUrl String // "Imagen Principal (Detalle 3:2)"
+
+  // --- Cuerpo del Proyecto (Flexible) ---
+  // "Añadir Bloque" (Imagen, Texto, Video, Carrusel)
+  // Un campo JSON es perfecto para esta estructura flexible.
+  contentBlocks Json?  
+
+  // --- Colaboradores (Flexible) ---
+  // "+ Añadir Colaborador" (Nombre, Rol)
+  // Un campo JSON para un array de objetos {nombre, rol}
+  colaboradores Json? 
+
+  // --- Opcional y Fechas ---
+  videoUrl    String?  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Modelo para el Formulario de Contacto
+model ContactSubmission {
+  // OBLIGATORIO: Usamos UUID
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}

@@ -1,7 +1,20 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+
+// Clave constante para evitar inconsistencias
+const TOKEN_KEY = 'adminToken'
+
+// Helper para verificar si sessionStorage está disponible
+const getSessionStorage = () => {
+  if (typeof window === 'undefined') return null
+  try {
+    return window.sessionStorage
+  } catch (e) {
+    return null
+  }
+}
 
 export function useAdminAuth() {
   const router = useRouter()
@@ -9,10 +22,17 @@ export function useAdminAuth() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Verificar autenticación
+    // Verificar autenticación leyendo el token guardado
     const checkAuth = () => {
-      const auth = sessionStorage.getItem('adminAuthenticated')
-      if (auth === 'true') {
+      const storage = getSessionStorage()
+      if (!storage) {
+        setIsAuthenticated(false)
+        setIsLoading(false)
+        return
+      }
+      
+      const token = storage.getItem(TOKEN_KEY)
+      if (token) {
         setIsAuthenticated(true)
       } else {
         setIsAuthenticated(false)
@@ -23,23 +43,60 @@ export function useAdminAuth() {
     checkAuth()
   }, [])
 
-  const login = (username: string, password: string) => {
-    // Autenticación básica - TODO: Reemplazar con sistema real
-    if (username === 'admin' && password === 'admin') {
-      sessionStorage.setItem('adminAuthenticated', 'true')
-      document.cookie = 'admin-auth=authenticated; path=/'
-      setIsAuthenticated(true)
-      return true
+  const login = useCallback(async (password: string) => {
+    try {
+      // Llamamos al endpoint de autenticación
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      const data = await response.json()
+
+      if (data.ok && data.token) {
+        // Guardamos el ADMIN_TOKEN para usarlo en las llamadas a API
+        const storage = getSessionStorage()
+        if (storage) {
+          storage.setItem(TOKEN_KEY, data.token)
+          setIsAuthenticated(true)
+          return true
+        } else {
+          console.error('sessionStorage no está disponible')
+          return false
+        }
+      } else {
+        // Error en la autenticación
+        return false
+      }
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error)
+      return false
     }
-    return false
-  }
+  }, []) // No tiene dependencias externas
 
-  const logout = () => {
-    sessionStorage.removeItem('adminAuthenticated')
-    document.cookie = 'admin-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  const logout = useCallback(() => {
+    // Limpiar el token
+    const storage = getSessionStorage()
+    if (storage) {
+      storage.removeItem(TOKEN_KEY)
+    }
     setIsAuthenticated(false)
-    router.push('/admin')
-  }
+    
+    // TODO: Llamar a endpoint de logout si existe para limpiar la cookie de sesión
+    // Por ahora, solo redirigimos a la página de login
+    router.push('/login')
+  }, [router]) // Depende de router
 
-  return { isAuthenticated, isLoading, login, logout }
+  const getToken = useCallback(() => {
+    const storage = getSessionStorage()
+    if (!storage) {
+      return null
+    }
+    return storage.getItem(TOKEN_KEY)
+  }, []) // No tiene dependencias externas
+
+  return { isAuthenticated, isLoading, login, logout, getToken }
 }

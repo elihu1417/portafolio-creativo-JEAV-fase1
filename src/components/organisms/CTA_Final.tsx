@@ -1,3 +1,5 @@
+import FormularioContactoSimple from '@/components/molecules/FormularioContactoSimple'
+
 export default function CTA_Final() {
   return (
     <section id="contacto" className="py-24 bg-brand-bg">
@@ -5,47 +7,8 @@ export default function CTA_Final() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           
           <div className="bg-gray-900 p-8 md:p-12 rounded-lg shadow-2xl">
-            <form action="#" method="POST">
-              <div className="mb-5">
-                <label htmlFor="nombre" className="block text-sm font-medium text-brand-text opacity-70 mb-2 font-sans">
-                  NOMBRE
-                </label>
-                <input 
-                  type="text" 
-                  name="nombre" 
-                  id="nombre" 
-                  className="w-full p-3 bg-brand-bg border border-gray-700 rounded-lg text-brand-text focus:ring-brand-orange focus:border-brand-orange font-sans"
-                />
-              </div>
-              <div className="mb-5">
-                <label htmlFor="email" className="block text-sm font-medium text-brand-text opacity-70 mb-2 font-sans">
-                  EMAIL
-                </label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  id="email" 
-                  className="w-full p-3 bg-brand-bg border border-gray-700 rounded-lg text-brand-text focus:ring-brand-orange focus:border-brand-orange font-sans"
-                />
-              </div>
-              <div className="mb-5">
-                <label htmlFor="mensaje" className="block text-sm font-medium text-brand-text opacity-70 mb-2 font-sans">
-                  MENSAJE
-                </label>
-                <textarea 
-                  name="mensaje" 
-                  id="mensaje" 
-                  rows={4} 
-                  className="w-full p-3 bg-brand-bg border border-gray-700 rounded-lg text-brand-text focus:ring-brand-orange focus:border-brand-orange font-sans"
-                ></textarea>
-              </div>
-              <button 
-                type="submit" 
-                className="w-full bg-brand-orange hover:opacity-90 text-brand-bg font-bold py-4 px-6 rounded-lg text-lg transition duration-300 font-sans"
-              >
-                Enviar mensaje
-              </button>
-            </form>
+            {/* Reemplazamos el formulario estático con nuestro componente funcional */}
+            <FormularioContactoSimple />
           </div>
           
           <div className="text-center md:text-left">
