@@ -1,15 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function CustomCursor() {
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const cursorRef = useRef<HTMLDivElement | null>(null)
+  const mousePositionRef = useRef({ x: 0, y: 0 })
+  const animationFrameRef = useRef<number>()
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      window.requestAnimationFrame(() => {
-        setPosition({ x: e.clientX, y: e.clientY })
-      })
+    const handleMouseMove = (event: MouseEvent) => {
+      mousePositionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      }
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -19,13 +22,24 @@ export default function CustomCursor() {
     }
   }, [])
 
-  return (
-    <div
-      id="custom-cursor-glow"
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`
-      }}
-    />
-  )
+  useEffect(() => {
+    const updateCursor = () => {
+      if (cursorRef.current) {
+        const { x, y } = mousePositionRef.current
+        cursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`
+      }
+
+      animationFrameRef.current = window.requestAnimationFrame(updateCursor)
+    }
+
+    animationFrameRef.current = window.requestAnimationFrame(updateCursor)
+
+    return () => {
+      if (animationFrameRef.current) {
+        window.cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [])
+
+  return <div id="custom-cursor-glow" ref={cursorRef} />
 }

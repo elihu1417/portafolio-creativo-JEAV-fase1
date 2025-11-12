@@ -2,11 +2,11 @@ export default function IconosRedesSociales() {
   return (
     <div className="flex space-x-6">
       <a 
-        href="https://linkedin.com/in/juan-elihu-arrieta-vela" 
+        href="https://www.facebook.com/elihu.arrietavela" 
         target="_blank" 
         rel="noopener noreferrer"
         className="text-brand-text opacity-70 hover:opacity-100 hover:text-brand-cyan transition" 
-        title="LinkedIn"
+        title="Facebook"
       >
         <svg 
           className="w-8 h-8" 
@@ -14,11 +14,11 @@ export default function IconosRedesSociales() {
           viewBox="0 0 24 24" 
           aria-hidden="true"
         >
-          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+          <path d="M22.675 0h-21.35C.595 0 0 .595 0 1.326v21.348C0 23.405.595 24 1.326 24h11.495V14.708h-3.13v-3.62h3.13V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.62h-3.12V24h6.116C23.405 24 24 23.405 24 22.674V1.326C24 .595 23.405 0 22.675 0z"/>
         </svg>
       </a>
       <a 
-        href="https://instagram.com/jeav.creative" 
+        href="https://www.instagram.com/elihu.crea/" 
         target="_blank" 
         rel="noopener noreferrer"
         className="text-brand-text opacity-70 hover:opacity-100 hover:text-brand-cyan transition" 

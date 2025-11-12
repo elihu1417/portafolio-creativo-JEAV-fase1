@@ -11,7 +11,7 @@ export default function HeroPrincipal() {
         className="absolute z-0 w-auto min-w-full min-h-full max-w-none object-cover"
       >
         <source 
-          src="https://assets.mixkit.co/videos/preview/mixkit-abstract-video-of-a-man-with-headphone-4000-large.mp4" 
+          src="/VIDEOS/VIDEO INCIO.mp4" 
           type="video/mp4" 
         />
       </video>
