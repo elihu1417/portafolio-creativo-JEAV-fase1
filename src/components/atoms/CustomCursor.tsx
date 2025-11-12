@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement | null>(null)
   const mousePositionRef = useRef({ x: 0, y: 0 })
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
