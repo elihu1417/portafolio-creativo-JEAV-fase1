@@ -44,10 +44,13 @@ export async function POST(request: Request) {
     }
 
     // El mesero le da la orden al Chef: "Crea un 'PortfolioItem' con todo esto"
+    // Log para debug
+    console.log('Creando proyecto con isPublished:', isPublished);
+    
     const newItem = await prisma.portfolioItem.create({
       data: {
         title,
-        isPublished,
+        isPublished: Boolean(isPublished), // Asegurar que sea un booleano
         category,
         tags, // Array de strings
         resumeCorto,
@@ -58,6 +61,12 @@ export async function POST(request: Request) {
         colaboradores, // Objeto JSON
         videoUrl: videoUrl || null, // Opcional
       },
+    });
+    
+    console.log('Proyecto creado exitosamente:', {
+      id: newItem.id,
+      title: newItem.title,
+      isPublished: newItem.isPublished
     });
     
     return NextResponse.json(newItem, { status: 201 });

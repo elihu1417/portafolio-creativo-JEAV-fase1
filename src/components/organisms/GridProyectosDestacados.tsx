@@ -2,9 +2,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
+// Forzar revalidación dinámica para evitar caché
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getFeaturedProjects() {
   try {
     // Obtener los primeros 3 proyectos publicados más recientes
+    // Usar cache: 'no-store' para evitar problemas de caché
     const projects = await prisma.portfolioItem.findMany({
       where: {
         isPublished: true,

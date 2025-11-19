@@ -658,11 +658,11 @@ function EditorProyecto({ projectId }: { projectId: string }) {
 
             <div className="flex flex-col space-y-3">
               <button
-                onClick={() => handleSubmit(false)}
+                onClick={() => handleSubmit(projectStatus)}
                 disabled={loading || loadingData}
                 className="w-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded transition"
               >
-                {loading ? 'Guardando...' : 'Guardar Cambios'}
+                {loading ? 'Guardando...' : projectStatus ? 'Guardar como Publicado' : 'Guardar como Borrador'}
               </button>
               <button
                 onClick={() => handleSubmit(true)}

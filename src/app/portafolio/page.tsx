@@ -2,8 +2,13 @@ import { prisma } from '@/lib/prisma'
 import PortafolioPageClient from './PortafolioPageClient'
 import { PortfolioItem } from '@/hooks/usePortfolioFilters'
 
+// Forzar revalidación dinámica para evitar caché
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getPortfolioProjects(): Promise<PortfolioItem[]> {
   try {
+    // Obtener todos los proyectos publicados, ordenados por fecha de creación
     const projects = await prisma.portfolioItem.findMany({
       where: {
         isPublished: true,
