@@ -68,6 +68,14 @@ export default function DetalleProyectoReel({ projectData }: DetalleProyectoReel
   // Obtener los otros reels (excluyendo el principal)
   const otherReels = mainReelBlock?.reels?.slice(1) || []
 
+  // Función helper para obtener el thumbnail de un reel
+  const getReelThumbnail = (reelUrl: string): string => {
+    if (isYouTubeUrl(reelUrl)) {
+      return getYouTubeThumbnail(reelUrl) || reelUrl
+    }
+    return reelUrl
+  }
+
   // Formatear colaboradores
   let colaboradoresText: string | undefined = undefined
   if (projectData.colaboradores) {
@@ -101,9 +109,16 @@ export default function DetalleProyectoReel({ projectData }: DetalleProyectoReel
     setIsDetailsExpanded(!isDetailsExpanded)
   }
 
+  const [playingReelUrl, setPlayingReelUrl] = useState<string | null>(null)
+
   const handleReelClick = (reelUrl: string) => {
-    console.log('Reproducir reel:', reelUrl)
-    // Aquí se implementaría la lógica para reproducir el reel
+    if (playingReelUrl === reelUrl) {
+      // Si ya está reproduciendo, detener
+      setPlayingReelUrl(null)
+    } else {
+      // Reproducir el reel
+      setPlayingReelUrl(reelUrl)
+    }
   }
 
   // Renderizar bloques de contenido adicionales (texto, imagen, video)
@@ -167,12 +182,34 @@ export default function DetalleProyectoReel({ projectData }: DetalleProyectoReel
       <section className="container mx-auto px-6 mt-12 mb-16 md:mb-24 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
         {/* Columna Izquierda: Reel Principal */}
         <div className="md:col-span-1 flex justify-center md:justify-end">
-          {mainReel ? (
-            <ReelPrincipal
-              thumbnailSrc={mainReel.url || projectData.imagenPortadaUrl}
-              thumbnailAlt={mainReel.title || projectData.title}
-              onClick={() => handleReelClick(mainReel.url || '')}
-            />
+          {mainReel && mainReel.url ? (
+            playingReelUrl === mainReel.url ? (
+              // Mostrar el video embebido si está reproduciendo
+              <div className="w-full max-w-[280px] sm:max-w-xs aspect-[9/16] bg-gray-800 rounded-lg overflow-hidden shadow-xl">
+                {isYouTubeUrl(mainReel.url) ? (
+                  <iframe
+                    src={`${getYouTubeEmbedUrl(mainReel.url)}?autoplay=1`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    title={mainReel.title || projectData.title}
+                  />
+                ) : (
+                  <video
+                    src={mainReel.url}
+                    controls
+                    autoPlay
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            ) : (
+              <ReelPrincipal
+                thumbnailSrc={getReelThumbnail(mainReel.url)}
+                thumbnailAlt={mainReel.title || projectData.title}
+                onClick={() => handleReelClick(mainReel.url)}
+              />
+            )
           ) : (
             <ReelPrincipal
               thumbnailSrc={projectData.imagenPortadaUrl || projectData.imagenPrincipalUrl}
@@ -207,10 +244,13 @@ export default function DetalleProyectoReel({ projectData }: DetalleProyectoReel
             <CarruselReels 
               reels={otherReels.map((reel, index) => ({
                 id: reel.url || `reel-${index}`,
-                thumbnailSrc: reel.url || projectData.imagenPortadaUrl,
+                thumbnailSrc: reel.url ? getReelThumbnail(reel.url) : projectData.imagenPortadaUrl,
                 thumbnailAlt: reel.title || `${projectData.title} - Reel ${index + 2}`,
-                onClick: () => handleReelClick(reel.url || '')
+                onClick: () => handleReelClick(reel.url || ''),
+                reelUrl: reel.url || ''
               }))}
+              playingReelUrl={playingReelUrl}
+              onReelClick={handleReelClick}
             />
           </div>
         </section>

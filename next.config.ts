@@ -44,6 +44,12 @@ const nextConfig = {
         port: '',
         pathname: '/**', // Permite URLs de YouTube (aunque no se usará directamente como imagen)
       },
+      {
+        protocol: 'https',
+        hostname: 'youtube.com',
+        port: '',
+        pathname: '/**', // Permite URLs de YouTube (sin www)
+      },
     ],
   },
 }
