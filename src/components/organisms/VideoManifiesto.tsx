@@ -5,12 +5,18 @@ export default function VideoManifiesto() {
         <h2 className="text-4xl text-center mb-12 text-brand-text font-titulo">
           Conoce mi Proceso
         </h2>
-        <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-2xl">
-          <div className="w-full h-full bg-brand-bg flex items-center justify-center">
-            <p className="text-2xl text-brand-text opacity-50 font-sans">
-              Video Manifiesto (Estilo Droga5) Aquí
-            </p>
-          </div>
+        <div className="aspect-video rounded-lg overflow-hidden shadow-2xl">
+          <video 
+            className="w-full h-full object-cover"
+            controls
+            playsInline
+          >
+            <source 
+              src="/VIDEOS/Video Intriducion ECI.mp4" 
+              type="video/mp4" 
+            />
+            Tu navegador no soporta el elemento de video.
+          </video>
         </div>
       </div>
     </section>

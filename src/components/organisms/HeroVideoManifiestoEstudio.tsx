@@ -1,6 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { getYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/youtube'
+
+const YOUTUBE_URL = 'https://youtu.be/zXlEvodsL9E'
 
 export default function HeroVideoManifiestoEstudio() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
@@ -8,6 +11,9 @@ export default function HeroVideoManifiestoEstudio() {
   const handlePlayClick = () => {
     setIsVideoLoaded(true)
   }
+
+  const embedUrl = getYouTubeEmbedUrl(YOUTUBE_URL)
+  const thumbnailUrl = getYouTubeThumbnail(YOUTUBE_URL)
 
   return (
     <section className="py-24 md:py-32 text-center">
@@ -24,12 +30,14 @@ export default function HeroVideoManifiestoEstudio() {
         >
           {!isVideoLoaded ? (
             <>
-              {/* Placeholder Thumbnail */}
-              <img 
-                src="https://placehold.co/1280x720/428ce6/22222c?text=Video+Manifiesto+(16:9)" 
-                alt="Video Manifiesto Thumbnail" 
-                className="absolute inset-0 w-full h-full object-cover z-0 opacity-80 group-hover:opacity-60 transition"
-              />
+              {/* Thumbnail de YouTube */}
+              {thumbnailUrl && (
+                <img 
+                  src={thumbnailUrl} 
+                  alt="Video Manifiesto Thumbnail" 
+                  className="absolute inset-0 w-full h-full object-cover z-0 opacity-80 group-hover:opacity-60 transition"
+                />
+              )}
               <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-10 transition z-10"></div>
               {/* Botón Play */}
               <svg 
@@ -45,15 +53,16 @@ export default function HeroVideoManifiestoEstudio() {
               </svg>
             </>
           ) : (
-            /* iframe real iría aquí al hacer clic */
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-              title="Video Manifiesto"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            embedUrl && (
+              <iframe
+                className="w-full h-full"
+                src={`${embedUrl}?autoplay=1`}
+                title="Video Manifiesto"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )
           )}
         </div>
       </div>
